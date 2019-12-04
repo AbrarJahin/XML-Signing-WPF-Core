@@ -23,6 +23,7 @@ namespace Siginig
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
+            //ChilkatExample.Sign();
             XmlDocument xmlDoc = LoadXML();
 
             //Call with Microsoft Library
