@@ -1,7 +1,7 @@
-﻿using Siginig.Library;
+﻿using Microsoft.Win32;
+using Siginig.Library;
 using System;
 using System.IO;
-using System.Security.Cryptography;
 using System.Windows;
 using System.Xml;
 
@@ -12,6 +12,9 @@ namespace Siginig
     /// </summary>
     public partial class MainWindow : Window
     {
+        static bool flag = false;
+        static string selectedFile = null;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -20,15 +23,41 @@ namespace Siginig
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
+            XmlDocument xmlDoc = LoadXML();
+
+            //Call with Microsoft Library
+            string temp = Canonicalize.XmlHash(xmlDoc); //default Sha256, but all supported
+            MessageBox.Show(flag + " - " + temp);
+            Clipboard.SetText(temp);
+
+            //Call with Bouncy Castle Library
+            temp = Canonicalize.GetSha256FromStream(xmlDoc.OuterXml);
+            MessageBox.Show(flag + " - " + temp);
+            Clipboard.SetText(temp);
+        }
+
+        private XmlDocument LoadXML()
+        {
+            flag = !flag;
+            if (selectedFile == null || flag)
+            {
+                OpenFileDialog openFileDialog = new OpenFileDialog();
+                //openFileDialog.Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*";
+                openFileDialog.DefaultExt = "xml";
+                openFileDialog.Filter = "XML Files|*.xml";
+                if (openFileDialog.ShowDialog() != true)
+                    throw new ArgumentException("File Not Selected Exception", "original");
+                //selectedFile = File.ReadAllText(openFileDialog.FileName);
+                selectedFile = openFileDialog.FileName;
+            }
+
             //SignXML.Start();
             //CallDigest();
             ///////////////////////////////////////////////////////
             XmlDocument xmlDoc = new XmlDocument();
-            xmlDoc.PreserveWhitespace = false;
-            xmlDoc.Load("E:\\XML\\keystore-demo\\small.xml");// Load an XML file into the XmlDocument object.
-            string temp = Canonicalize.XmlHash(xmlDoc);
-            MessageBox.Show(temp);
-            Clipboard.SetText(temp);
+            xmlDoc.PreserveWhitespace = flag;
+            xmlDoc.Load(selectedFile);// Load an XML file into the XmlDocument object.
+            return xmlDoc;
         }
 
         private void CallDigest()

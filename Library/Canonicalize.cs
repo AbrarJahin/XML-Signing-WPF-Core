@@ -4,16 +4,17 @@ using System;
 using System.IO;
 using System.Security.Cryptography;
 using System.Security.Cryptography.Xml;
+using System.Windows;
 using System.Xml;
 
 namespace Siginig.Library
 {
     class Canonicalize
     {
-        public static string XmlHash(XmlDocument myDoc, string algorithm = "sha256")
+        public static string XmlHash(XmlDocument xmlDoc, string algorithm = "sha256")
         {
             byte[] hash;
-            Stream stream = GetCanonicalStreamFromXML(myDoc);
+            Stream stream = GetCanonicalStreamFromXML(xmlDoc);
 
             switch(algorithm.ToLower())
             {
@@ -29,21 +30,20 @@ namespace Siginig.Library
                         //Sha256Digest digest = new Org.BouncyCastle.Crypto.Digests.Sha256Digest();
                         break;
                     }
-                case ("sha384"): {      //need implementation
-                        SHA256 hashAlgorithm = SHA256.Create();
+                case ("sha384"): {
+                        SHA384 hashAlgorithm = SHA384.Create();
                         hash = hashAlgorithm.ComputeHash(stream);
                         //Sha384Digest digest = new Sha384Digest();
                         break;
                     }
-                case ("sha512"): {      //need implementation
-                        SHA256 hashAlgorithm = SHA256.Create();
+                case ("sha512"): {
+                        SHA512 hashAlgorithm = SHA512.Create();
                         hash = hashAlgorithm.ComputeHash(stream);
                         //Sha512Digest digest = new Sha512Digest();
                         break;
                     }
                 default: {      //need implementation
                         throw new ArgumentException("Given Hashing Algorithm Not Supported", "original");
-                        break;
                     }
             }
             stream.Close();
@@ -64,6 +64,8 @@ namespace Siginig.Library
             hash.BlockUpdate(data, 0, data.Length);
             byte[] result = new byte[hash.GetDigestSize()];
             hash.DoFinal(result, 0);
+
+            return Convert.ToBase64String(result);
             return Hex.ToHexString(result);
         }
     }
